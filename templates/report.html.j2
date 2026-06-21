@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIS Cisco IOS Benchmark - Compliance Audit Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper:      #faf8f3;
+    --ink:        #1c1810;
+    --ink-muted:  #756b5c;
+    --rule:       #d8d0bf;
+    --rule-strong:#1c1810;
+    --fail:       #7a1f1f;
+    --pass:       #2f5233;
+    --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --mono:  "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet { max-width: 860px; margin: 0 auto; padding: 3rem 1.75rem 5rem; }
+
+  /* Cover block */
+  .cover {
+    border-bottom: 2px solid var(--rule-strong);
+    padding-bottom: 1.75rem;
+    margin-bottom: 2.25rem;
+  }
+  .cover .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.6rem;
+  }
+  .cover h1 {
+    font-size: 2.1rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.1rem;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  .cover-meta dt {
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.66rem;
+    margin-bottom: 0.2rem;
+  }
+  .cover-meta dd.exceptions { color: var(--fail); font-weight: 700; }
+  .cover-meta dd.exceptions.clear { color: var(--pass); }
+
+  /* Scope, methodology, severity key */
+  .intro-block {
+    margin-bottom: 2.25rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .intro-block h2 {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    margin-bottom: 0.7rem;
+  }
+  .intro-block p { font-size: 0.9rem; max-width: 640px; }
+  .intro-block p + p { margin-top: 0.55rem; }
+
+  .severity-key { display: grid; gap: 0.55rem; margin-top: 0.9rem; }
+  .severity-key .row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.9rem; font-size: 0.85rem; }
+  .severity-key .label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding-top: 0.1rem;
+  }
+  .severity-key .label .weight {
+    display: block;
+    font-weight: 500;
+    color: var(--ink-muted);
+    font-size: 0.64rem;
+    margin-top: 0.1rem;
+  }
+  .severity-key .row.sev-critical .label, .severity-key .row.sev-high .label { color: var(--fail); }
+
+  /* Fleet summary table */
+  .fleet-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }
+  .fleet-table th, .fleet-table td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--rule); }
+  .fleet-table th {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .fleet-table td.mono { font-family: var(--mono); }
+  .fleet-table td.status-fail { color: var(--fail); font-weight: 700; }
+  .fleet-table td.status-pass { color: var(--pass); font-weight: 700; }
+
+  /* Stamp */
+  .stamp {
+    display: inline-block;
+    border: 3px double currentColor;
+    padding: 0.35rem 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transform: rotate(-1.4deg);
+    white-space: nowrap;
+  }
+  .stamp.pass  { color: var(--pass); }
+  .stamp.fail  { color: var(--fail); }
+  .stamp.error { color: var(--ink-muted); }
+  .stamp .sub { display: block; font-size: 0.64rem; font-weight: 500; margin-top: 0.15rem; letter-spacing: 0.04em; }
+
+  /* Device section */
+  .device { margin-bottom: 3rem; }
+  .device-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-bottom: 1px solid var(--rule-strong);
+    padding-bottom: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+  .device-head .name {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .device-head .ip, .device-head .identity {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    margin-top: 0.2rem;
+  }
+
+  .device-error {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    padding: 1rem 1.1rem;
+    white-space: pre-wrap;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.4rem;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  /* Control rows */
+  .control {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr 5.2rem;
+    gap: 0.9rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .control .ref {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    padding-top: 0.1rem;
+  }
+  .control .body .title { font-weight: 600; }
+  .control .body .detail { font-size: 0.86rem; color: var(--ink-muted); margin-top: 0.2rem; }
+  .control .body .remediation {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink);
+    margin-top: 0.4rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--rule);
+    white-space: pre-line;
+  }
+  .control .verdict {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding-top: 0.15rem;
+  }
+  .control .verdict .sev {
+    display: block;
+    font-weight: 500;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    margin-top: 0.15rem;
+  }
+  .control.fail .verdict { color: var(--fail); }
+  .control.fail.sev-critical .verdict { font-size: 0.74rem; }
+  .control.fail.sev-low .verdict, .control.fail.sev-medium .verdict { font-weight: 600; }
+  .control.pass { opacity: 0.7; }
+  .control.pass .verdict { color: var(--pass); }
+  .control.pass .body .title { font-weight: 500; }
+
+  /* Compact rendering for the verified-controls list - one line, no detail */
+  .control.compact { grid-template-columns: 3.4rem 1fr 5.2rem; padding: 0.4rem 0; }
+  .control.compact .body .detail,
+  .control.compact .body .remediation { display: none; }
+
+  .no-rows {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    padding: 0.6rem 0;
+  }
+
+  /* Action items appendix */
+  .action-item {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr;
+    gap: 0.9rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .action-item .ref { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-muted); padding-top: 0.1rem; }
+  .action-item .title { font-weight: 600; }
+  .action-item .title .sev-tag {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--fail);
+    margin-left: 0.5rem;
+  }
+  .action-item .remediation {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    margin-top: 0.4rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--rule);
+    white-space: pre-line;
+  }
+  .action-item .hosts {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    margin-top: 0.4rem;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 2px solid var(--rule-strong);
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .control { grid-template-columns: 1fr; }
+    .control .verdict { text-align: left; }
+    .control.compact .body .detail { display: block; }
+    .severity-key .row { grid-template-columns: 1fr; }
+    .action-item { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .sheet { max-width: none; padding: 0.4in 0.3in; }
+    .device { page-break-before: always; break-before: page; }
+    .device:first-of-type { page-break-before: auto; break-before: auto; }
+    .control, .action-item, .fleet-table tr { page-break-inside: avoid; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- Cover -->
+  <div class="cover">
+    <div class="eyebrow">CIS Cisco IOS Benchmark</div>
+    <h1>Compliance Audit Report</h1>
+    <dl class="cover-meta">
+      <div>
+        <dt>Generated</dt>
+        <dd>{{ generated_at }}</dd>
+      </div>
+      <div>
+        <dt>Devices Scanned</dt>
+        <dd>{{ total_devices }}</dd>
+      </div>
+      <div>
+        <dt>Controls Evaluated</dt>
+        <dd>{{ total_checks }}</dd>
+      </div>
+      <div>
+        <dt>Exceptions</dt>
+        {% set total_exceptions = fleet_critical + fleet_high + fleet_medium + fleet_low %}
+        {% if total_exceptions > 0 %}
+        <dd class="exceptions">{{ total_exceptions }} ({{ fleet_critical }} critical, {{ fleet_high }} high, {{ fleet_medium }} medium, {{ fleet_low }} low)</dd>
+        {% else %}
+        <dd class="exceptions clear">None</dd>
+        {% endif %}
+      </div>
+    </dl>
+  </div>
+
+  <!-- Scope & methodology -->
+  <div class="intro-block">
+    <h2>Scope &amp; Methodology</h2>
+    <p>This assessment evaluates {{ controls_in_scope }} controls drawn from the CIS Cisco IOS Benchmark, covering authentication, session management, encrypted management access, and logging configuration. It is a targeted control subset, not a full CIS Benchmark compliance assessment.</p>
+    <p>Each device was audited over an authenticated SSH session. The running configuration was retrieved with <code>show running-config</code> and evaluated against each control; no configuration changes were made to any device during this assessment.</p>
+  </div>
+
+  <!-- Severity & scoring key -->
+  <div class="intro-block">
+    <h2>Severity &amp; Scoring Methodology</h2>
+    <div class="severity-key">
+      {% for d in severity_definitions %}
+      <div class="row sev-{{ d.severity | lower }}">
+        <div class="label">{{ d.severity }}<span class="weight">{{ d.weight }} pts</span></div>
+        <div>{{ d.description }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <p style="margin-top: 0.9rem;">Each device score is the percentage of available severity-weighted points earned across all evaluated controls (failing a CRITICAL control costs more than failing a LOW one). Grades: A &ge;90, B &ge;75, C &ge;60, D &ge;45, F below 45.</p>
+  </div>
+
+  <!-- Fleet summary -->
+  <div class="intro-block">
+    <h2>Fleet Summary</h2>
+    <table class="fleet-table">
+      <thead>
+        <tr>
+          <th>Hostname</th>
+          <th>IP</th>
+          <th>Grade</th>
+          <th>Score</th>
+          <th>Exceptions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in fleet_summary %}
+        <tr>
+          <td class="mono">{{ row.hostname }}</td>
+          <td class="mono">{{ row.ip }}</td>
+          {% if row.incomplete %}
+          <td colspan="3">Audit Incomplete</td>
+          {% else %}
+          <td class="{{ 'status-pass' if row.grade in ['A', 'B'] else 'status-fail' }}">{{ row.grade }}</td>
+          <td class="mono">{{ row.score }}/100</td>
+          <td class="{{ 'status-fail' if row.exceptions > 0 else 'status-pass' }}">{{ row.exceptions }}</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Per-device sections -->
+  {% for device in devices %}
+  <div class="device">
+
+    {% if device.error %}
+      <div class="device-head">
+        <div>
+          <div class="name">{{ device.hostname }}</div>
+          <div class="ip">{{ device.ip }}</div>
+        </div>
+        <span class="stamp error">Audit Incomplete</span>
+      </div>
+      <div class="device-error">{{ device.error }}</div>
+
+    {% else %}
+      {% set sections = sections_by_host[device.hostname] %}
+      <div class="device-head">
+        <div>
+          <div class="name">{{ device.hostname }}</div>
+          <div class="ip">{{ device.ip }}</div>
+          {% if device.model or device.os_version %}
+          <div class="identity">{% if device.model %}{{ device.model }} - {% endif %}{% if device.os_version %}IOS {{ device.os_version }}{% endif %}</div>
+          {% endif %}
+        </div>
+        {% if device.grade() in ["A", "B"] %}
+        <span class="stamp pass">Compliant<span class="sub">Grade {{ device.grade() }} - {{ device.score() }}/100</span></span>
+        {% else %}
+        <span class="stamp fail">Non-Compliant<span class="sub">Grade {{ device.grade() }} - {{ device.score() }}/100</span></span>
+        {% endif %}
+      </div>
+
+      <div class="section-label">Exceptions Noted - {{ sections.exceptions | length }}</div>
+      {% if sections.exceptions %}
+        {% for f in sections.exceptions %}
+        <div class="control fail sev-{{ f.severity | lower }}">
+          <div class="ref">{{ f.cis_ref }}</div>
+          <div class="body">
+            <div class="title">{{ f.title }}</div>
+            <div class="detail">{{ f.detail }}</div>
+            {% if f.remediation %}<div class="remediation">{{ f.remediation }}</div>{% endif %}
+          </div>
+          <div class="verdict">Fail<span class="sev">{{ f.severity }}</span></div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-rows">No exceptions against numbered CIS controls.</div>
+      {% endif %}
+
+      <div class="section-label">Controls Verified - {{ sections.verified | length }}</div>
+      {% if sections.verified %}
+        {% for f in sections.verified %}
+        <div class="control pass compact">
+          <div class="ref">{{ f.cis_ref }}</div>
+          <div class="body"><div class="title">{{ f.title }}</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-rows">No controls passed.</div>
+      {% endif %}
+
+      {% if sections.recommendations %}
+      <div class="section-label">Additional Recommendations - {{ sections.recommendations | length }}</div>
+      {% for f in sections.recommendations %}
+      <div class="control {{ 'fail sev-' ~ (f.severity | lower) if f.status.value == 'FAIL' else 'pass compact' }}">
+        <div class="ref">{{ f.check_id }}</div>
+        <div class="body">
+          <div class="title">{{ f.title }}</div>
+          {% if f.status.value == 'FAIL' %}
+          <div class="detail">{{ f.detail }}</div>
+          {% if f.remediation %}<div class="remediation">{{ f.remediation }}</div>{% endif %}
+          {% endif %}
+        </div>
+        <div class="verdict">
+          {% if f.status.value == 'FAIL' %}Fail<span class="sev">{{ f.severity }}</span>{% else %}Pass{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <!-- Aggregated action items -->
+  <div class="intro-block" style="border-bottom: none;">
+    <h2>Action Items - {{ action_items | length }}</h2>
+    {% if action_items %}
+      {% for item in action_items %}
+      <div class="action-item">
+        <div class="ref">{{ item.cis_ref if item.cis_ref else item.check_id }}</div>
+        <div>
+          <div class="title">{{ item.title }}<span class="sev-tag">{{ item.severity }}</span></div>
+          {% if item.remediation %}<div class="remediation">{{ item.remediation }}</div>{% endif %}
+          <div class="hosts">Affected: {{ item.hosts | join(', ') }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-rows">No outstanding exceptions across the fleet.</div>
+    {% endif %}
+  </div>
+
+  <div class="footer">
+    <span>cisco-auditor - CIS Cisco IOS Benchmark</span>
+    <span>{{ generated_at }}</span>
+  </div>
+
+</div>
+</body>
+</html>

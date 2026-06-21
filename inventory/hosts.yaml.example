@@ -1,0 +1,10 @@
+---
+# Copy this file to hosts.yaml and fill in real device credentials.
+# hosts.yaml is gitignored on purpose, real credentials never get committed.
+devnet-iosxe:
+    hostname: <device-ip-or-hostname>
+    username: <username>
+    password: <password>
+    port: 22
+    groups:
+        - cisco_ios

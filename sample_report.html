@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIS Cisco IOS Benchmark - Compliance Audit Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper:      #faf8f3;
+    --ink:        #1c1810;
+    --ink-muted:  #756b5c;
+    --rule:       #d8d0bf;
+    --rule-strong:#1c1810;
+    --fail:       #7a1f1f;
+    --pass:       #2f5233;
+    --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --mono:  "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet { max-width: 860px; margin: 0 auto; padding: 3rem 1.75rem 5rem; }
+
+  /* Cover block */
+  .cover {
+    border-bottom: 2px solid var(--rule-strong);
+    padding-bottom: 1.75rem;
+    margin-bottom: 2.25rem;
+  }
+  .cover .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.6rem;
+  }
+  .cover h1 {
+    font-size: 2.1rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.1rem;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  .cover-meta dt {
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.66rem;
+    margin-bottom: 0.2rem;
+  }
+  .cover-meta dd.exceptions { color: var(--fail); font-weight: 700; }
+  .cover-meta dd.exceptions.clear { color: var(--pass); }
+
+  /* Scope, methodology, severity key */
+  .intro-block {
+    margin-bottom: 2.25rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .intro-block h2 {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    margin-bottom: 0.7rem;
+  }
+  .intro-block p { font-size: 0.9rem; max-width: 640px; }
+  .intro-block p + p { margin-top: 0.55rem; }
+
+  .severity-key { display: grid; gap: 0.55rem; margin-top: 0.9rem; }
+  .severity-key .row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.9rem; font-size: 0.85rem; }
+  .severity-key .label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding-top: 0.1rem;
+  }
+  .severity-key .label .weight {
+    display: block;
+    font-weight: 500;
+    color: var(--ink-muted);
+    font-size: 0.64rem;
+    margin-top: 0.1rem;
+  }
+  .severity-key .row.sev-critical .label, .severity-key .row.sev-high .label { color: var(--fail); }
+
+  /* Fleet summary table */
+  .fleet-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }
+  .fleet-table th, .fleet-table td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--rule); }
+  .fleet-table th {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .fleet-table td.mono { font-family: var(--mono); }
+  .fleet-table td.status-fail { color: var(--fail); font-weight: 700; }
+  .fleet-table td.status-pass { color: var(--pass); font-weight: 700; }
+
+  /* Stamp */
+  .stamp {
+    display: inline-block;
+    border: 3px double currentColor;
+    padding: 0.35rem 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transform: rotate(-1.4deg);
+    white-space: nowrap;
+  }
+  .stamp.pass  { color: var(--pass); }
+  .stamp.fail  { color: var(--fail); }
+  .stamp.error { color: var(--ink-muted); }
+  .stamp .sub { display: block; font-size: 0.64rem; font-weight: 500; margin-top: 0.15rem; letter-spacing: 0.04em; }
+
+  /* Device section */
+  .device { margin-bottom: 3rem; }
+  .device-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-bottom: 1px solid var(--rule-strong);
+    padding-bottom: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+  .device-head .name {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .device-head .ip, .device-head .identity {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    margin-top: 0.2rem;
+  }
+
+  .device-error {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    padding: 1rem 1.1rem;
+    white-space: pre-wrap;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.4rem;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  /* Control rows */
+  .control {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr 5.2rem;
+    gap: 0.9rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .control .ref {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    padding-top: 0.1rem;
+  }
+  .control .body .title { font-weight: 600; }
+  .control .body .detail { font-size: 0.86rem; color: var(--ink-muted); margin-top: 0.2rem; }
+  .control .body .remediation {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink);
+    margin-top: 0.4rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--rule);
+    white-space: pre-line;
+  }
+  .control .verdict {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding-top: 0.15rem;
+  }
+  .control .verdict .sev {
+    display: block;
+    font-weight: 500;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    margin-top: 0.15rem;
+  }
+  .control.fail .verdict { color: var(--fail); }
+  .control.fail.sev-critical .verdict { font-size: 0.74rem; }
+  .control.fail.sev-low .verdict, .control.fail.sev-medium .verdict { font-weight: 600; }
+  .control.pass { opacity: 0.7; }
+  .control.pass .verdict { color: var(--pass); }
+  .control.pass .body .title { font-weight: 500; }
+
+  /* Compact rendering for the verified-controls list - one line, no detail */
+  .control.compact { grid-template-columns: 3.4rem 1fr 5.2rem; padding: 0.4rem 0; }
+  .control.compact .body .detail,
+  .control.compact .body .remediation { display: none; }
+
+  .no-rows {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    padding: 0.6rem 0;
+  }
+
+  /* Action items appendix */
+  .action-item {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr;
+    gap: 0.9rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .action-item .ref { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-muted); padding-top: 0.1rem; }
+  .action-item .title { font-weight: 600; }
+  .action-item .title .sev-tag {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--fail);
+    margin-left: 0.5rem;
+  }
+  .action-item .remediation {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    margin-top: 0.4rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--rule);
+    white-space: pre-line;
+  }
+  .action-item .hosts {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    margin-top: 0.4rem;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 2px solid var(--rule-strong);
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .control { grid-template-columns: 1fr; }
+    .control .verdict { text-align: left; }
+    .control.compact .body .detail { display: block; }
+    .severity-key .row { grid-template-columns: 1fr; }
+    .action-item { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .sheet { max-width: none; padding: 0.4in 0.3in; }
+    .device { page-break-before: always; break-before: page; }
+    .device:first-of-type { page-break-before: auto; break-before: auto; }
+    .control, .action-item, .fleet-table tr { page-break-inside: avoid; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- Cover -->
+  <div class="cover">
+    <div class="eyebrow">CIS Cisco IOS Benchmark</div>
+    <h1>Compliance Audit Report</h1>
+    <dl class="cover-meta">
+      <div>
+        <dt>Generated</dt>
+        <dd>2026-06-19 23:07:54</dd>
+      </div>
+      <div>
+        <dt>Devices Scanned</dt>
+        <dd>2</dd>
+      </div>
+      <div>
+        <dt>Controls Evaluated</dt>
+        <dd>42</dd>
+      </div>
+      <div>
+        <dt>Exceptions</dt>
+        
+        
+        <dd class="exceptions">21 (4 critical, 7 high, 7 medium, 3 low)</dd>
+        
+      </div>
+    </dl>
+  </div>
+
+  <!-- Scope & methodology -->
+  <div class="intro-block">
+    <h2>Scope &amp; Methodology</h2>
+    <p>This assessment evaluates 21 controls drawn from the CIS Cisco IOS Benchmark, covering authentication, session management, encrypted management access, and logging configuration. It is a targeted control subset, not a full CIS Benchmark compliance assessment.</p>
+    <p>Each device was audited over an authenticated SSH session. The running configuration was retrieved with <code>show running-config</code> and evaluated against each control; no configuration changes were made to any device during this assessment.</p>
+  </div>
+
+  <!-- Severity & scoring key -->
+  <div class="intro-block">
+    <h2>Severity &amp; Scoring Methodology</h2>
+    <div class="severity-key">
+      
+      <div class="row sev-critical">
+        <div class="label">CRITICAL<span class="weight">20 pts</span></div>
+        <div>Immediately exploitable with direct, unauthenticated impact - plaintext credentials, default access strings, or no authentication required at all.</div>
+      </div>
+      
+      <div class="row sev-high">
+        <div class="label">HIGH<span class="weight">15 pts</span></div>
+        <div>Materially weakens authentication, encryption, or centralized access control, significantly increasing the odds of compromise.</div>
+      </div>
+      
+      <div class="row sev-medium">
+        <div class="label">MEDIUM<span class="weight">8 pts</span></div>
+        <div>Reduces resilience against brute-force attempts, session hijacking, or incident investigation; exploitation requires additional conditions.</div>
+      </div>
+      
+      <div class="row sev-low">
+        <div class="label">LOW<span class="weight">3 pts</span></div>
+        <div>Best-practice or compliance-notice gap with limited direct security impact on its own.</div>
+      </div>
+      
+    </div>
+    <p style="margin-top: 0.9rem;">Each device score is the percentage of available severity-weighted points earned across all evaluated controls (failing a CRITICAL control costs more than failing a LOW one). Grades: A &ge;90, B &ge;75, C &ge;60, D &ge;45, F below 45.</p>
+  </div>
+
+  <!-- Fleet summary -->
+  <div class="intro-block">
+    <h2>Fleet Summary</h2>
+    <table class="fleet-table">
+      <thead>
+        <tr>
+          <th>Hostname</th>
+          <th>IP</th>
+          <th>Grade</th>
+          <th>Score</th>
+          <th>Exceptions</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">router-clean</td>
+          <td class="mono">10.0.0.1</td>
+          
+          <td class="status-pass">A</td>
+          <td class="mono">100/100</td>
+          <td class="status-pass">0</td>
+          
+        </tr>
+        
+        <tr>
+          <td class="mono">router-dirty</td>
+          <td class="mono">10.0.0.2</td>
+          
+          <td class="status-fail">F</td>
+          <td class="mono">0/100</td>
+          <td class="status-fail">21</td>
+          
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Per-device sections -->
+  
+  <div class="device">
+
+    
+      
+      <div class="device-head">
+        <div>
+          <div class="name">router-clean</div>
+          <div class="ip">10.0.0.1</div>
+          
+          <div class="identity">C8000V - IOS 17.09.04a</div>
+          
+        </div>
+        
+        <span class="stamp pass">Compliant<span class="sub">Grade A - 100/100</span></span>
+        
+      </div>
+
+      <div class="section-label">Exceptions Noted - 0</div>
+      
+        <div class="no-rows">No exceptions against numbered CIS controls.</div>
+      
+
+      <div class="section-label">Controls Verified - 13</div>
+      
+        
+        <div class="control pass compact">
+          <div class="ref">1.1.1</div>
+          <div class="body"><div class="title">Ensure SSH version 2 is enforced</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">1.1.2</div>
+          <div class="body"><div class="title">Ensure Telnet is disabled on VTY lines</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">1.2.1</div>
+          <div class="body"><div class="title">Ensure console port requires authentication</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">1.2.3</div>
+          <div class="body"><div class="title">Ensure VTY idle timeout is configured</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">1.3.1</div>
+          <div class="body"><div class="title">Ensure HTTP management server is disabled</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">1.4.1</div>
+          <div class="body"><div class="title">Ensure login rate limiting is configured</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">2.1.1</div>
+          <div class="body"><div class="title">Ensure password encryption service is enabled</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">2.2.1</div>
+          <div class="body"><div class="title">Ensure AAA new-model is configured</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">3.1.1</div>
+          <div class="body"><div class="title">Ensure TCP/UDP small servers are disabled</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">3.1.2</div>
+          <div class="body"><div class="title">Ensure IP source routing is disabled</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">3.2.1</div>
+          <div class="body"><div class="title">Ensure default SNMP community strings are not used</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">4.1.1</div>
+          <div class="body"><div class="title">Ensure remote syslog host is configured</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+        <div class="control pass compact">
+          <div class="ref">4.1.2</div>
+          <div class="body"><div class="title">Ensure log timestamps are configured</div></div>
+          <div class="verdict">Pass</div>
+        </div>
+        
+      
+
+      
+      <div class="section-label">Additional Recommendations - 8</div>
+      
+      <div class="control pass compact">
+        <div class="ref">C04</div>
+        <div class="body">
+          <div class="title">Ensure the Smart Install client is disabled</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      <div class="control pass compact">
+        <div class="ref">H05</div>
+        <div class="body">
+          <div class="title">Ensure VTY lines restrict access with an access-class</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      <div class="control pass compact">
+        <div class="ref">H06</div>
+        <div class="body">
+          <div class="title">Ensure SNMP access does not rely on SNMPv1/v2c</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      <div class="control pass compact">
+        <div class="ref">H07</div>
+        <div class="body">
+          <div class="title">Ensure Control Plane Policing is configured</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      <div class="control pass compact">
+        <div class="ref">M06</div>
+        <div class="body">
+          <div class="title">Ensure NTP authentication is configured</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      <div class="control pass compact">
+        <div class="ref">M07</div>
+        <div class="body">
+          <div class="title">Ensure a minimum password length is enforced</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      <div class="control pass compact">
+        <div class="ref">L01</div>
+        <div class="body">
+          <div class="title">Ensure a login banner is configured</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      <div class="control pass compact">
+        <div class="ref">L02</div>
+        <div class="body">
+          <div class="title">Ensure an NTP server is configured</div>
+          
+        </div>
+        <div class="verdict">
+          Pass
+        </div>
+      </div>
+      
+      
+    
+  </div>
+  
+  <div class="device">
+
+    
+      
+      <div class="device-head">
+        <div>
+          <div class="name">router-dirty</div>
+          <div class="ip">10.0.0.2</div>
+          
+          <div class="identity">C8000V - IOS 17.03.05</div>
+          
+        </div>
+        
+        <span class="stamp fail">Non-Compliant<span class="sub">Grade F - 0/100</span></span>
+        
+      </div>
+
+      <div class="section-label">Exceptions Noted - 13</div>
+      
+        
+        <div class="control fail sev-critical">
+          <div class="ref">1.1.2</div>
+          <div class="body">
+            <div class="title">Ensure Telnet is disabled on VTY lines</div>
+            <div class="detail">One or more VTY lines allow Telnet. Credentials are transmitted in plaintext.</div>
+            <div class="remediation">Under each 'line vty' block, run: transport input ssh</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">CRITICAL</span></div>
+        </div>
+        
+        <div class="control fail sev-critical">
+          <div class="ref">1.2.1</div>
+          <div class="body">
+            <div class="title">Ensure console port requires authentication</div>
+            <div class="detail">Console line (line con 0) has no login requirement - physical access grants full CLI.</div>
+            <div class="remediation">Under 'line con 0', run: login local</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">CRITICAL</span></div>
+        </div>
+        
+        <div class="control fail sev-critical">
+          <div class="ref">3.2.1</div>
+          <div class="body">
+            <div class="title">Ensure default SNMP community strings are not used</div>
+            <div class="detail">Device uses 'public' or 'private' SNMP community strings - the factory defaults.</div>
+            <div class="remediation">Run: no snmp-server community public
+no snmp-server community private</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">CRITICAL</span></div>
+        </div>
+        
+        <div class="control fail sev-high">
+          <div class="ref">1.1.1</div>
+          <div class="body">
+            <div class="title">Ensure SSH version 2 is enforced</div>
+            <div class="detail">SSH version 2 is not explicitly set - device may negotiate version 1.</div>
+            <div class="remediation">Run: ip ssh version 2</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">HIGH</span></div>
+        </div>
+        
+        <div class="control fail sev-high">
+          <div class="ref">1.3.1</div>
+          <div class="body">
+            <div class="title">Ensure HTTP management server is disabled</div>
+            <div class="detail">Unencrypted HTTP management interface is active. Login credentials are sent in cleartext.</div>
+            <div class="remediation">Run: no ip http server</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">HIGH</span></div>
+        </div>
+        
+        <div class="control fail sev-high">
+          <div class="ref">2.1.1</div>
+          <div class="body">
+            <div class="title">Ensure password encryption service is enabled</div>
+            <div class="detail">'service password-encryption' is off - passwords in the running config may be stored in plaintext.</div>
+            <div class="remediation">Run: service password-encryption</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">HIGH</span></div>
+        </div>
+        
+        <div class="control fail sev-high">
+          <div class="ref">2.2.1</div>
+          <div class="body">
+            <div class="title">Ensure AAA new-model is configured</div>
+            <div class="detail">AAA is not enabled. Without it, centralized authentication and command logging can't be enforced.</div>
+            <div class="remediation">Run: aaa new-model</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">HIGH</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">1.2.3</div>
+          <div class="body">
+            <div class="title">Ensure VTY idle timeout is configured</div>
+            <div class="detail">VTY lines have no idle timeout - abandoned sessions stay open forever.</div>
+            <div class="remediation">Under each 'line vty' block, run: exec-timeout 10 0</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">1.4.1</div>
+          <div class="body">
+            <div class="title">Ensure login rate limiting is configured</div>
+            <div class="detail">No 'login block-for' is set - brute force login attempts are not throttled.</div>
+            <div class="remediation">Run: login block-for 60 attempts 3 within 30</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">3.1.2</div>
+          <div class="body">
+            <div class="title">Ensure IP source routing is disabled</div>
+            <div class="detail">IP source routing is on. Attackers can use it to influence how packets are routed.</div>
+            <div class="remediation">Run: no ip source-route</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">4.1.1</div>
+          <div class="body">
+            <div class="title">Ensure remote syslog host is configured</div>
+            <div class="detail">No remote syslog server is configured - logs are lost on reboot or if an attacker clears them.</div>
+            <div class="remediation">Run: logging host <your-syslog-server-ip></div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">4.1.2</div>
+          <div class="body">
+            <div class="title">Ensure log timestamps are configured</div>
+            <div class="detail">Syslog messages don't include real timestamps - incident timeline correlation is unreliable.</div>
+            <div class="remediation">Run: service timestamps log datetime msec</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+        <div class="control fail sev-low">
+          <div class="ref">3.1.1</div>
+          <div class="body">
+            <div class="title">Ensure TCP/UDP small servers are disabled</div>
+            <div class="detail">Legacy diagnostic services (echo, chargen, discard) are active and can be abused in DoS attacks.</div>
+            <div class="remediation">Run: no service tcp-small-servers
+no service udp-small-servers</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">LOW</span></div>
+        </div>
+        
+      
+
+      <div class="section-label">Controls Verified - 0</div>
+      
+        <div class="no-rows">No controls passed.</div>
+      
+
+      
+      <div class="section-label">Additional Recommendations - 8</div>
+      
+      <div class="control fail sev-critical">
+        <div class="ref">C04</div>
+        <div class="body">
+          <div class="title">Ensure the Smart Install client is disabled</div>
+          
+          <div class="detail">Smart Install client is not explicitly disabled. This service has a documented history of unauthenticated remote exploitation.</div>
+          <div class="remediation">Run: no vstack</div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">CRITICAL</span>
+        </div>
+      </div>
+      
+      <div class="control fail sev-high">
+        <div class="ref">H05</div>
+        <div class="body">
+          <div class="title">Ensure VTY lines restrict access with an access-class</div>
+          
+          <div class="detail">One or more VTY lines have no inbound access-class. Any source address that can reach the device can attempt to log in.</div>
+          <div class="remediation">Under each 'line vty' block, run: access-class <management-acl> in</div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">HIGH</span>
+        </div>
+      </div>
+      
+      <div class="control fail sev-high">
+        <div class="ref">H06</div>
+        <div class="body">
+          <div class="title">Ensure SNMP access does not rely on SNMPv1/v2c</div>
+          
+          <div class="detail">A SNMPv1/v2c community string is configured. The protocol sends it in plaintext regardless of how strong the string is.</div>
+          <div class="remediation">Replace community-string SNMP access with SNMPv3, for example: snmp-server group ADMINGROUP v3 priv
+snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">HIGH</span>
+        </div>
+      </div>
+      
+      <div class="control fail sev-high">
+        <div class="ref">H07</div>
+        <div class="body">
+          <div class="title">Ensure Control Plane Policing is configured</div>
+          
+          <div class="detail">No control-plane service-policy is applied. The device's CPU has no rate-limiting against traffic directed at it.</div>
+          <div class="remediation">Define and apply a CoPP policy, for example: control-plane
+ service-policy input COPP-POLICY</div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">HIGH</span>
+        </div>
+      </div>
+      
+      <div class="control fail sev-medium">
+        <div class="ref">M06</div>
+        <div class="body">
+          <div class="title">Ensure NTP authentication is configured</div>
+          
+          <div class="detail">NTP authentication is not enabled. Any time source this device uses can be spoofed.</div>
+          <div class="remediation">Run: ntp authenticate
+ntp authentication-key 1 md5 <key>
+ntp trusted-key 1</div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">MEDIUM</span>
+        </div>
+      </div>
+      
+      <div class="control fail sev-medium">
+        <div class="ref">M07</div>
+        <div class="body">
+          <div class="title">Ensure a minimum password length is enforced</div>
+          
+          <div class="detail">No minimum password length of at least 8 characters is enforced for local accounts.</div>
+          <div class="remediation">Run: security passwords min-length 8</div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">MEDIUM</span>
+        </div>
+      </div>
+      
+      <div class="control fail sev-low">
+        <div class="ref">L01</div>
+        <div class="body">
+          <div class="title">Ensure a login banner is configured</div>
+          
+          <div class="detail">No login banner is set. Compliance frameworks require an authorized-use-only warning before login.</div>
+          <div class="remediation">Add a 'banner motd' with an authorized-use-only legal notice.</div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">LOW</span>
+        </div>
+      </div>
+      
+      <div class="control fail sev-low">
+        <div class="ref">L02</div>
+        <div class="body">
+          <div class="title">Ensure an NTP server is configured</div>
+          
+          <div class="detail">No NTP server configured - device clock drifts and log timestamps become unreliable.</div>
+          <div class="remediation">Run: ntp server <ntp-server-ip></div>
+          
+        </div>
+        <div class="verdict">
+          Fail<span class="sev">LOW</span>
+        </div>
+      </div>
+      
+      
+    
+  </div>
+  
+
+  <!-- Aggregated action items -->
+  <div class="intro-block" style="border-bottom: none;">
+    <h2>Action Items - 21</h2>
+    
+      
+      <div class="action-item">
+        <div class="ref">1.1.2</div>
+        <div>
+          <div class="title">Ensure Telnet is disabled on VTY lines<span class="sev-tag">CRITICAL</span></div>
+          <div class="remediation">Under each 'line vty' block, run: transport input ssh</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">3.2.1</div>
+        <div>
+          <div class="title">Ensure default SNMP community strings are not used<span class="sev-tag">CRITICAL</span></div>
+          <div class="remediation">Run: no snmp-server community public
+no snmp-server community private</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">1.2.1</div>
+        <div>
+          <div class="title">Ensure console port requires authentication<span class="sev-tag">CRITICAL</span></div>
+          <div class="remediation">Under 'line con 0', run: login local</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">C04</div>
+        <div>
+          <div class="title">Ensure the Smart Install client is disabled<span class="sev-tag">CRITICAL</span></div>
+          <div class="remediation">Run: no vstack</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">1.1.1</div>
+        <div>
+          <div class="title">Ensure SSH version 2 is enforced<span class="sev-tag">HIGH</span></div>
+          <div class="remediation">Run: ip ssh version 2</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">2.1.1</div>
+        <div>
+          <div class="title">Ensure password encryption service is enabled<span class="sev-tag">HIGH</span></div>
+          <div class="remediation">Run: service password-encryption</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">2.2.1</div>
+        <div>
+          <div class="title">Ensure AAA new-model is configured<span class="sev-tag">HIGH</span></div>
+          <div class="remediation">Run: aaa new-model</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">1.3.1</div>
+        <div>
+          <div class="title">Ensure HTTP management server is disabled<span class="sev-tag">HIGH</span></div>
+          <div class="remediation">Run: no ip http server</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">H05</div>
+        <div>
+          <div class="title">Ensure VTY lines restrict access with an access-class<span class="sev-tag">HIGH</span></div>
+          <div class="remediation">Under each 'line vty' block, run: access-class <management-acl> in</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">H06</div>
+        <div>
+          <div class="title">Ensure SNMP access does not rely on SNMPv1/v2c<span class="sev-tag">HIGH</span></div>
+          <div class="remediation">Replace community-string SNMP access with SNMPv3, for example: snmp-server group ADMINGROUP v3 priv
+snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">H07</div>
+        <div>
+          <div class="title">Ensure Control Plane Policing is configured<span class="sev-tag">HIGH</span></div>
+          <div class="remediation">Define and apply a CoPP policy, for example: control-plane
+ service-policy input COPP-POLICY</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">1.4.1</div>
+        <div>
+          <div class="title">Ensure login rate limiting is configured<span class="sev-tag">MEDIUM</span></div>
+          <div class="remediation">Run: login block-for 60 attempts 3 within 30</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">1.2.3</div>
+        <div>
+          <div class="title">Ensure VTY idle timeout is configured<span class="sev-tag">MEDIUM</span></div>
+          <div class="remediation">Under each 'line vty' block, run: exec-timeout 10 0</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">3.1.2</div>
+        <div>
+          <div class="title">Ensure IP source routing is disabled<span class="sev-tag">MEDIUM</span></div>
+          <div class="remediation">Run: no ip source-route</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">4.1.1</div>
+        <div>
+          <div class="title">Ensure remote syslog host is configured<span class="sev-tag">MEDIUM</span></div>
+          <div class="remediation">Run: logging host <your-syslog-server-ip></div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">4.1.2</div>
+        <div>
+          <div class="title">Ensure log timestamps are configured<span class="sev-tag">MEDIUM</span></div>
+          <div class="remediation">Run: service timestamps log datetime msec</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">M06</div>
+        <div>
+          <div class="title">Ensure NTP authentication is configured<span class="sev-tag">MEDIUM</span></div>
+          <div class="remediation">Run: ntp authenticate
+ntp authentication-key 1 md5 <key>
+ntp trusted-key 1</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">M07</div>
+        <div>
+          <div class="title">Ensure a minimum password length is enforced<span class="sev-tag">MEDIUM</span></div>
+          <div class="remediation">Run: security passwords min-length 8</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">L01</div>
+        <div>
+          <div class="title">Ensure a login banner is configured<span class="sev-tag">LOW</span></div>
+          <div class="remediation">Add a 'banner motd' with an authorized-use-only legal notice.</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">L02</div>
+        <div>
+          <div class="title">Ensure an NTP server is configured<span class="sev-tag">LOW</span></div>
+          <div class="remediation">Run: ntp server <ntp-server-ip></div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+      <div class="action-item">
+        <div class="ref">3.1.1</div>
+        <div>
+          <div class="title">Ensure TCP/UDP small servers are disabled<span class="sev-tag">LOW</span></div>
+          <div class="remediation">Run: no service tcp-small-servers
+no service udp-small-servers</div>
+          <div class="hosts">Affected: router-dirty</div>
+        </div>
+      </div>
+      
+    
+  </div>
+
+  <div class="footer">
+    <span>cisco-auditor - CIS Cisco IOS Benchmark</span>
+    <span>2026-06-19 23:07:54</span>
+  </div>
+
+</div>
+</body>
+</html>
