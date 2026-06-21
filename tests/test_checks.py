@@ -1,5 +1,5 @@
 """
-Unit tests for the 15 CIS Cisco IOS Benchmark checks in auditor/checks.py.
+Unit tests for the CIS Cisco IOS Benchmark checks in auditor/checks.py.
 
 Each check gets a minimal config snippet that should fail it and a minimal
 config snippet that should pass it, instead of relying on the two large
