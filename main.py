@@ -22,7 +22,6 @@ from auditor.models import Status, Severity
 def print_results_to_terminal(devices):
     """Print a summary of each device's findings to the terminal."""
 
-    # Show failures in order from most to least severe
     severity_order = [Severity.CRITICAL, Severity.HIGH, Severity.MEDIUM, Severity.LOW]
 
     for device in devices:
@@ -35,7 +34,6 @@ def print_results_to_terminal(devices):
         print(f"  Score: {device.score()}/100  Grade: {device.grade()}")
         print()
 
-        # Print failures grouped by severity so the most critical ones are at the top
         for severity_level in severity_order:
             failures_at_this_level = []
             for finding in device.findings:
@@ -83,9 +81,7 @@ def main():
     else:
         print()
 
-    # Exit with a non-zero code if any device has CRITICAL or HIGH failures.
-    # This is useful if you ever want to run this in a CI pipeline -
-    # a non-zero exit code will fail the pipeline.
+    # non-zero exit on CRITICAL/HIGH so this can gate a CI pipeline
     has_critical_or_high_failures = False
     for device in devices:
         for finding in device.findings:

@@ -1,9 +1,7 @@
 """
 Handles connecting to devices and running the audit.
 
-Uses Nornir for automatic thread pooling across the fleet instead of
-looping over devices one at a time with plain Netmiko. Inventory (devices
-and credentials) is defined in inventory/hosts.yaml and inventory/groups.yaml.
+Inventory is defined in inventory/hosts.yaml and inventory/groups.yaml.
 """
 
 import re
@@ -39,7 +37,6 @@ def _audit_single_device(task: Task) -> Result:
     config_text = show_result[0].result
     findings = run_all_checks(config_text)
 
-    # Device identity (software version + hardware model) is a separate command
     version_result = task.run(
         task=netmiko_send_command,
         command_string="show version",
@@ -51,12 +48,7 @@ def _audit_single_device(task: Task) -> Result:
 
 
 def run_audit(config_file: str = "nornir.yaml") -> List[DeviceResult]:
-    """
-    Run the audit on every host in the inventory and return a list of
-    DeviceResult, one per device. Unreachable/auth-failed devices get
-    their error captured in DeviceResult.error so the report can still
-    generate for the devices that did respond.
-    """
+    """Run the audit on every host in the inventory, return one DeviceResult per device."""
     nr = InitNornir(config_file=config_file)
 
     print(f"  Found {len(nr.inventory.hosts)} device(s) in inventory")

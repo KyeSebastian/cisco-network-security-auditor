@@ -10,7 +10,6 @@ from jinja2 import Environment, FileSystemLoader
 from .checks import ALL_CHECKS
 from .models import DeviceResult, Finding, Severity, Status, SEVERITY_WEIGHTS
 
-# Most-severe-first, used to order exceptions so the worst findings read first.
 _SEVERITY_ORDER = [Severity.CRITICAL, Severity.HIGH, Severity.MEDIUM, Severity.LOW]
 
 # Defines what each severity means and how much it costs in the weighted
@@ -163,22 +162,17 @@ def generate_report(
     Render the HTML report and write it to output_path.
     Returns the output path so the caller can print it.
     """
-    # Load the Jinja2 environment pointing at the templates folder
     env = Environment(loader=FileSystemLoader(template_dir))
     template = env.get_template("report.html.j2")
 
-    # Count total checks run (excludes devices that had connection errors)
     total_checks = 0
     for device in devices:
         if not device.error:
             total_checks += len(device.findings)
 
-    # Pre-split each device's findings into exceptions / verified / recommendations
-    # so the template can render the report like a real audit document instead
-    # of re-deriving the grouping with Jinja filters.
+    # pre-split so the template doesn't re-derive grouping with Jinja filters
     sections_by_host = {device.hostname: _organize_findings(device) for device in devices if not device.error}
 
-    # Build the data the template needs
     template_data = {
         "devices": devices,
         "sections_by_host": sections_by_host,
@@ -197,8 +191,6 @@ def generate_report(
     }
 
     html_output = template.render(**template_data)
-
-    # Write the HTML file
     Path(output_path).write_text(html_output, encoding="utf-8")
 
     return output_path

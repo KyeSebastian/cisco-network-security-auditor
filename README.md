@@ -10,11 +10,11 @@ A multithreaded Python CLI that connects to Cisco IOS devices over SSH and audit
 
 ![Report overview](docs/screenshots/report_overview.png)
 
-**A compliant device, every control passing:**
+**Controls verified (passing) on a non-compliant device:**
 
-![Compliant device section](docs/screenshots/report_clean_device.png)
+![Controls verified section](docs/screenshots/report_clean_device.png)
 
-**A non-compliant device, exceptions listed worst severity first:**
+**Exceptions listed worst severity first:**
 
 ![Non-compliant device exceptions](docs/screenshots/report_exceptions.png)
 
@@ -22,21 +22,11 @@ A multithreaded Python CLI that connects to Cisco IOS devices over SSH and audit
 
 ![Action items appendix](docs/screenshots/report_action_items.png)
 
-The full report is in [`sample_report.html`](sample_report.html), generated from synthetic clean/dirty device fixtures by `smoke_test.py`.
+The full report is in [`sample_report.html`](sample_report.html), generated from a live audit of a Cisco DevNet Cat8k (IOS 17.15.04c).
 
 ## How it works
 
-Here's the path a single audit run takes:
-
-```
-main.py -> auditor.scanner.run_audit()
-      Nornir + Netmiko, threaded SSH across the fleet (inventory/hosts.yaml)
-      show running-config -> auditor.checks.run_all_checks() -> Finding list
-      show version -> device OS/model
-  -> auditor.report.generate_report() -> Jinja2 -> audit_report.html
-```
-
-Each device gets a severity-weighted score (CRITICAL=20, HIGH=15, MEDIUM=8, LOW=3) and a letter grade, so one CRITICAL failure hurts the score far more than one LOW failure.
+Connects to each device over SSH, pulls `show running-config` and `show version`, and runs each check against the raw config text. Each device gets a severity-weighted score (CRITICAL=20, HIGH=15, MEDIUM=8, LOW=3) and a letter grade, so one CRITICAL failure hurts the score far more than one LOW failure. Results get rendered into a self-contained HTML report.
 
 ## Checks (21 controls)
 
@@ -100,11 +90,11 @@ python main.py --config nornir.yaml --output my_report.html
 python main.py --no-report   # terminal output only, skip the HTML report
 ```
 
-`main.py` exits non-zero if any device has a failing CRITICAL or HIGH severity control, so it can be wired into a CI/CD pipeline as a hard gate rather than just producing a report nobody reads.
+`main.py` exits non-zero if any device has a failing CRITICAL or HIGH severity control, so it can be wired into a CI/CD pipeline as a hard gate.
 
 ### Example output
 
-Terminal summary for a single device (synthetic dirty fixture, see `smoke_test.py`), truncated for brevity:
+Terminal summary for a non-compliant device (synthetic dirty fixture, see `smoke_test.py`):
 
 ```
 cisco-auditor - connecting to devices...

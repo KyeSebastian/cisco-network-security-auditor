@@ -429,8 +429,7 @@ def check_small_servers_disabled(config: str) -> Finding:
     )
 
 
-# Control plane and CVE-driven checks, added on top of the management-plane
-# checks above. None carry a cis_ref - see report under Additional Recommendations.
+# Control plane and CVE-driven checks (no cis_ref, see Additional Recommendations in report)
 
 def _get_control_plane_block(config: str) -> str:
     """Pull the 'control-plane' block out of the config, same approach as the line-block helpers above."""

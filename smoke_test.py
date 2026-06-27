@@ -65,4 +65,4 @@ devices = [
     DeviceResult(hostname="router-dirty", ip="10.0.0.2", findings=findings2, os_version="17.03.05", model="C8000V"),
 ]
 path = generate_report(devices, output_path="sample_report.html")
-print(f"\nSample report generated -> {path}")
+print(f"\nreport: {path}")

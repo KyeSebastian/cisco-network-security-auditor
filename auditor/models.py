@@ -24,10 +24,7 @@ class Status(str, Enum):
         return self.value
 
 
-# Point values per severity level.
-# I'm using weighted scoring instead of a simple pass/fail count because
-# failing a CRITICAL check should hurt the score a lot more than failing a LOW one.
-# Score = (points earned on passing checks) / (total possible points) * 100
+# score = (points earned) / (total possible) * 100
 SEVERITY_WEIGHTS = {
     Severity.CRITICAL: 20,
     Severity.HIGH: 15,
@@ -38,7 +35,6 @@ SEVERITY_WEIGHTS = {
 
 @dataclass
 class Finding:
-    """Represents the result of a single security check on a device."""
     check_id: str
     title: str
     severity: Severity
@@ -53,18 +49,14 @@ class Finding:
 
 @dataclass
 class DeviceResult:
-    """Holds all the findings for one device after the audit runs."""
     hostname: str
     ip: str
-    # field(default_factory=list) is needed here because mutable defaults
-    # like [] aren't allowed directly in dataclasses
     findings: List[Finding] = field(default_factory=list)
     error: str = ""  # set if we couldn't connect to the device
     os_version: str = ""  # e.g. "17.09.04a", parsed from 'show version'
     model: str = ""  # e.g. "C8000V", parsed from 'show version'
 
     def score(self) -> int:
-        """Calculate a 0-100 security score based on weighted check results."""
         if self.error or not self.findings:
             return 0
 
@@ -80,7 +72,6 @@ class DeviceResult:
         return round((earned / total_possible) * 100)
 
     def grade(self) -> str:
-        """Convert the numeric score to a letter grade."""
         s = self.score()
         if s >= 90:
             return "A"
@@ -94,7 +85,6 @@ class DeviceResult:
             return "F"
 
     def get_failures(self) -> List[Finding]:
-        """Return only the checks that failed."""
         failures = []
         for finding in self.findings:
             if finding.status == Status.FAIL:
@@ -102,7 +92,6 @@ class DeviceResult:
         return failures
 
     def get_passes(self) -> List[Finding]:
-        """Return only the checks that passed."""
         passes = []
         for finding in self.findings:
             if finding.status == Status.PASS:

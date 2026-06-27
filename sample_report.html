@@ -315,21 +315,21 @@
     <dl class="cover-meta">
       <div>
         <dt>Generated</dt>
-        <dd>2026-06-19 23:07:54</dd>
+        <dd>2026-06-27 07:56:39</dd>
       </div>
       <div>
         <dt>Devices Scanned</dt>
-        <dd>2</dd>
+        <dd>1</dd>
       </div>
       <div>
         <dt>Controls Evaluated</dt>
-        <dd>42</dd>
+        <dd>21</dd>
       </div>
       <div>
         <dt>Exceptions</dt>
         
         
-        <dd class="exceptions">21 (4 critical, 7 high, 7 medium, 3 low)</dd>
+        <dd class="exceptions">13 (2 critical, 4 high, 5 medium, 2 low)</dd>
         
       </div>
     </dl>
@@ -387,22 +387,12 @@
       <tbody>
         
         <tr>
-          <td class="mono">router-clean</td>
-          <td class="mono">10.0.0.1</td>
-          
-          <td class="status-pass">A</td>
-          <td class="mono">100/100</td>
-          <td class="status-pass">0</td>
-          
-        </tr>
-        
-        <tr>
-          <td class="mono">router-dirty</td>
-          <td class="mono">10.0.0.2</td>
+          <td class="mono">devnet-cat8k</td>
+          <td class="mono">devnetsandboxiosxec8k.cisco.com</td>
           
           <td class="status-fail">F</td>
-          <td class="mono">0/100</td>
-          <td class="status-fail">21</td>
+          <td class="mono">42/100</td>
+          <td class="status-fail">13</td>
           
         </tr>
         
@@ -418,58 +408,88 @@
       
       <div class="device-head">
         <div>
-          <div class="name">router-clean</div>
-          <div class="ip">10.0.0.1</div>
+          <div class="name">devnet-cat8k</div>
+          <div class="ip">devnetsandboxiosxec8k.cisco.com</div>
           
-          <div class="identity">C8000V - IOS 17.09.04a</div>
+          <div class="identity">C8000V - IOS 17.15.04c</div>
           
         </div>
         
-        <span class="stamp pass">Compliant<span class="sub">Grade A - 100/100</span></span>
+        <span class="stamp fail">Non-Compliant<span class="sub">Grade F - 42/100</span></span>
         
       </div>
 
-      <div class="section-label">Exceptions Noted - 0</div>
-      
-        <div class="no-rows">No exceptions against numbered CIS controls.</div>
-      
-
-      <div class="section-label">Controls Verified - 13</div>
+      <div class="section-label">Exceptions Noted - 6</div>
       
         
-        <div class="control pass compact">
-          <div class="ref">1.1.1</div>
-          <div class="body"><div class="title">Ensure SSH version 2 is enforced</div></div>
-          <div class="verdict">Pass</div>
+        <div class="control fail sev-critical">
+          <div class="ref">1.2.1</div>
+          <div class="body">
+            <div class="title">Ensure console port requires authentication</div>
+            <div class="detail">Console line (line con 0) has no login requirement - physical access grants full CLI.</div>
+            <div class="remediation">Under 'line con 0', run: login local</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">CRITICAL</span></div>
         </div>
+        
+        <div class="control fail sev-high">
+          <div class="ref">1.1.1</div>
+          <div class="body">
+            <div class="title">Ensure SSH version 2 is enforced</div>
+            <div class="detail">SSH version 2 is not explicitly set - device may negotiate version 1.</div>
+            <div class="remediation">Run: ip ssh version 2</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">HIGH</span></div>
+        </div>
+        
+        <div class="control fail sev-high">
+          <div class="ref">1.3.1</div>
+          <div class="body">
+            <div class="title">Ensure HTTP management server is disabled</div>
+            <div class="detail">Unencrypted HTTP management interface is active. Login credentials are sent in cleartext.</div>
+            <div class="remediation">Run: no ip http server</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">HIGH</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">1.2.3</div>
+          <div class="body">
+            <div class="title">Ensure VTY idle timeout is configured</div>
+            <div class="detail">VTY lines have no idle timeout - abandoned sessions stay open forever.</div>
+            <div class="remediation">Under each 'line vty' block, run: exec-timeout 10 0</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">1.4.1</div>
+          <div class="body">
+            <div class="title">Ensure login rate limiting is configured</div>
+            <div class="detail">No 'login block-for' is set - brute force login attempts are not throttled.</div>
+            <div class="remediation">Run: login block-for 60 attempts 3 within 30</div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+        <div class="control fail sev-medium">
+          <div class="ref">4.1.1</div>
+          <div class="body">
+            <div class="title">Ensure remote syslog host is configured</div>
+            <div class="detail">No remote syslog server is configured - logs are lost on reboot or if an attacker clears them.</div>
+            <div class="remediation">Run: logging host <your-syslog-server-ip></div>
+          </div>
+          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
+        </div>
+        
+      
+
+      <div class="section-label">Controls Verified - 7</div>
+      
         
         <div class="control pass compact">
           <div class="ref">1.1.2</div>
           <div class="body"><div class="title">Ensure Telnet is disabled on VTY lines</div></div>
-          <div class="verdict">Pass</div>
-        </div>
-        
-        <div class="control pass compact">
-          <div class="ref">1.2.1</div>
-          <div class="body"><div class="title">Ensure console port requires authentication</div></div>
-          <div class="verdict">Pass</div>
-        </div>
-        
-        <div class="control pass compact">
-          <div class="ref">1.2.3</div>
-          <div class="body"><div class="title">Ensure VTY idle timeout is configured</div></div>
-          <div class="verdict">Pass</div>
-        </div>
-        
-        <div class="control pass compact">
-          <div class="ref">1.3.1</div>
-          <div class="body"><div class="title">Ensure HTTP management server is disabled</div></div>
-          <div class="verdict">Pass</div>
-        </div>
-        
-        <div class="control pass compact">
-          <div class="ref">1.4.1</div>
-          <div class="body"><div class="title">Ensure login rate limiting is configured</div></div>
           <div class="verdict">Pass</div>
         </div>
         
@@ -504,271 +524,11 @@
         </div>
         
         <div class="control pass compact">
-          <div class="ref">4.1.1</div>
-          <div class="body"><div class="title">Ensure remote syslog host is configured</div></div>
-          <div class="verdict">Pass</div>
-        </div>
-        
-        <div class="control pass compact">
           <div class="ref">4.1.2</div>
           <div class="body"><div class="title">Ensure log timestamps are configured</div></div>
           <div class="verdict">Pass</div>
         </div>
         
-      
-
-      
-      <div class="section-label">Additional Recommendations - 8</div>
-      
-      <div class="control pass compact">
-        <div class="ref">C04</div>
-        <div class="body">
-          <div class="title">Ensure the Smart Install client is disabled</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      <div class="control pass compact">
-        <div class="ref">H05</div>
-        <div class="body">
-          <div class="title">Ensure VTY lines restrict access with an access-class</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      <div class="control pass compact">
-        <div class="ref">H06</div>
-        <div class="body">
-          <div class="title">Ensure SNMP access does not rely on SNMPv1/v2c</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      <div class="control pass compact">
-        <div class="ref">H07</div>
-        <div class="body">
-          <div class="title">Ensure Control Plane Policing is configured</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      <div class="control pass compact">
-        <div class="ref">M06</div>
-        <div class="body">
-          <div class="title">Ensure NTP authentication is configured</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      <div class="control pass compact">
-        <div class="ref">M07</div>
-        <div class="body">
-          <div class="title">Ensure a minimum password length is enforced</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      <div class="control pass compact">
-        <div class="ref">L01</div>
-        <div class="body">
-          <div class="title">Ensure a login banner is configured</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      <div class="control pass compact">
-        <div class="ref">L02</div>
-        <div class="body">
-          <div class="title">Ensure an NTP server is configured</div>
-          
-        </div>
-        <div class="verdict">
-          Pass
-        </div>
-      </div>
-      
-      
-    
-  </div>
-  
-  <div class="device">
-
-    
-      
-      <div class="device-head">
-        <div>
-          <div class="name">router-dirty</div>
-          <div class="ip">10.0.0.2</div>
-          
-          <div class="identity">C8000V - IOS 17.03.05</div>
-          
-        </div>
-        
-        <span class="stamp fail">Non-Compliant<span class="sub">Grade F - 0/100</span></span>
-        
-      </div>
-
-      <div class="section-label">Exceptions Noted - 13</div>
-      
-        
-        <div class="control fail sev-critical">
-          <div class="ref">1.1.2</div>
-          <div class="body">
-            <div class="title">Ensure Telnet is disabled on VTY lines</div>
-            <div class="detail">One or more VTY lines allow Telnet. Credentials are transmitted in plaintext.</div>
-            <div class="remediation">Under each 'line vty' block, run: transport input ssh</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">CRITICAL</span></div>
-        </div>
-        
-        <div class="control fail sev-critical">
-          <div class="ref">1.2.1</div>
-          <div class="body">
-            <div class="title">Ensure console port requires authentication</div>
-            <div class="detail">Console line (line con 0) has no login requirement - physical access grants full CLI.</div>
-            <div class="remediation">Under 'line con 0', run: login local</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">CRITICAL</span></div>
-        </div>
-        
-        <div class="control fail sev-critical">
-          <div class="ref">3.2.1</div>
-          <div class="body">
-            <div class="title">Ensure default SNMP community strings are not used</div>
-            <div class="detail">Device uses 'public' or 'private' SNMP community strings - the factory defaults.</div>
-            <div class="remediation">Run: no snmp-server community public
-no snmp-server community private</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">CRITICAL</span></div>
-        </div>
-        
-        <div class="control fail sev-high">
-          <div class="ref">1.1.1</div>
-          <div class="body">
-            <div class="title">Ensure SSH version 2 is enforced</div>
-            <div class="detail">SSH version 2 is not explicitly set - device may negotiate version 1.</div>
-            <div class="remediation">Run: ip ssh version 2</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">HIGH</span></div>
-        </div>
-        
-        <div class="control fail sev-high">
-          <div class="ref">1.3.1</div>
-          <div class="body">
-            <div class="title">Ensure HTTP management server is disabled</div>
-            <div class="detail">Unencrypted HTTP management interface is active. Login credentials are sent in cleartext.</div>
-            <div class="remediation">Run: no ip http server</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">HIGH</span></div>
-        </div>
-        
-        <div class="control fail sev-high">
-          <div class="ref">2.1.1</div>
-          <div class="body">
-            <div class="title">Ensure password encryption service is enabled</div>
-            <div class="detail">'service password-encryption' is off - passwords in the running config may be stored in plaintext.</div>
-            <div class="remediation">Run: service password-encryption</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">HIGH</span></div>
-        </div>
-        
-        <div class="control fail sev-high">
-          <div class="ref">2.2.1</div>
-          <div class="body">
-            <div class="title">Ensure AAA new-model is configured</div>
-            <div class="detail">AAA is not enabled. Without it, centralized authentication and command logging can't be enforced.</div>
-            <div class="remediation">Run: aaa new-model</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">HIGH</span></div>
-        </div>
-        
-        <div class="control fail sev-medium">
-          <div class="ref">1.2.3</div>
-          <div class="body">
-            <div class="title">Ensure VTY idle timeout is configured</div>
-            <div class="detail">VTY lines have no idle timeout - abandoned sessions stay open forever.</div>
-            <div class="remediation">Under each 'line vty' block, run: exec-timeout 10 0</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
-        </div>
-        
-        <div class="control fail sev-medium">
-          <div class="ref">1.4.1</div>
-          <div class="body">
-            <div class="title">Ensure login rate limiting is configured</div>
-            <div class="detail">No 'login block-for' is set - brute force login attempts are not throttled.</div>
-            <div class="remediation">Run: login block-for 60 attempts 3 within 30</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
-        </div>
-        
-        <div class="control fail sev-medium">
-          <div class="ref">3.1.2</div>
-          <div class="body">
-            <div class="title">Ensure IP source routing is disabled</div>
-            <div class="detail">IP source routing is on. Attackers can use it to influence how packets are routed.</div>
-            <div class="remediation">Run: no ip source-route</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
-        </div>
-        
-        <div class="control fail sev-medium">
-          <div class="ref">4.1.1</div>
-          <div class="body">
-            <div class="title">Ensure remote syslog host is configured</div>
-            <div class="detail">No remote syslog server is configured - logs are lost on reboot or if an attacker clears them.</div>
-            <div class="remediation">Run: logging host <your-syslog-server-ip></div>
-          </div>
-          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
-        </div>
-        
-        <div class="control fail sev-medium">
-          <div class="ref">4.1.2</div>
-          <div class="body">
-            <div class="title">Ensure log timestamps are configured</div>
-            <div class="detail">Syslog messages don't include real timestamps - incident timeline correlation is unreliable.</div>
-            <div class="remediation">Run: service timestamps log datetime msec</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">MEDIUM</span></div>
-        </div>
-        
-        <div class="control fail sev-low">
-          <div class="ref">3.1.1</div>
-          <div class="body">
-            <div class="title">Ensure TCP/UDP small servers are disabled</div>
-            <div class="detail">Legacy diagnostic services (echo, chargen, discard) are active and can be abused in DoS attacks.</div>
-            <div class="remediation">Run: no service tcp-small-servers
-no service udp-small-servers</div>
-          </div>
-          <div class="verdict">Fail<span class="sev">LOW</span></div>
-        </div>
-        
-      
-
-      <div class="section-label">Controls Verified - 0</div>
-      
-        <div class="no-rows">No controls passed.</div>
       
 
       
@@ -802,18 +562,14 @@ no service udp-small-servers</div>
         </div>
       </div>
       
-      <div class="control fail sev-high">
+      <div class="control pass compact">
         <div class="ref">H06</div>
         <div class="body">
           <div class="title">Ensure SNMP access does not rely on SNMPv1/v2c</div>
           
-          <div class="detail">A SNMPv1/v2c community string is configured. The protocol sends it in plaintext regardless of how strong the string is.</div>
-          <div class="remediation">Replace community-string SNMP access with SNMPv3, for example: snmp-server group ADMINGROUP v3 priv
-snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
-          
         </div>
         <div class="verdict">
-          Fail<span class="sev">HIGH</span>
+          Pass
         </div>
       </div>
       
@@ -897,34 +653,15 @@ ntp trusted-key 1</div>
 
   <!-- Aggregated action items -->
   <div class="intro-block" style="border-bottom: none;">
-    <h2>Action Items - 21</h2>
+    <h2>Action Items - 13</h2>
     
-      
-      <div class="action-item">
-        <div class="ref">1.1.2</div>
-        <div>
-          <div class="title">Ensure Telnet is disabled on VTY lines<span class="sev-tag">CRITICAL</span></div>
-          <div class="remediation">Under each 'line vty' block, run: transport input ssh</div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
-      
-      <div class="action-item">
-        <div class="ref">3.2.1</div>
-        <div>
-          <div class="title">Ensure default SNMP community strings are not used<span class="sev-tag">CRITICAL</span></div>
-          <div class="remediation">Run: no snmp-server community public
-no snmp-server community private</div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
       
       <div class="action-item">
         <div class="ref">1.2.1</div>
         <div>
           <div class="title">Ensure console port requires authentication<span class="sev-tag">CRITICAL</span></div>
           <div class="remediation">Under 'line con 0', run: login local</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -933,7 +670,7 @@ no snmp-server community private</div>
         <div>
           <div class="title">Ensure the Smart Install client is disabled<span class="sev-tag">CRITICAL</span></div>
           <div class="remediation">Run: no vstack</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -942,25 +679,7 @@ no snmp-server community private</div>
         <div>
           <div class="title">Ensure SSH version 2 is enforced<span class="sev-tag">HIGH</span></div>
           <div class="remediation">Run: ip ssh version 2</div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
-      
-      <div class="action-item">
-        <div class="ref">2.1.1</div>
-        <div>
-          <div class="title">Ensure password encryption service is enabled<span class="sev-tag">HIGH</span></div>
-          <div class="remediation">Run: service password-encryption</div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
-      
-      <div class="action-item">
-        <div class="ref">2.2.1</div>
-        <div>
-          <div class="title">Ensure AAA new-model is configured<span class="sev-tag">HIGH</span></div>
-          <div class="remediation">Run: aaa new-model</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -969,7 +688,7 @@ no snmp-server community private</div>
         <div>
           <div class="title">Ensure HTTP management server is disabled<span class="sev-tag">HIGH</span></div>
           <div class="remediation">Run: no ip http server</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -978,17 +697,7 @@ no snmp-server community private</div>
         <div>
           <div class="title">Ensure VTY lines restrict access with an access-class<span class="sev-tag">HIGH</span></div>
           <div class="remediation">Under each 'line vty' block, run: access-class <management-acl> in</div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
-      
-      <div class="action-item">
-        <div class="ref">H06</div>
-        <div>
-          <div class="title">Ensure SNMP access does not rely on SNMPv1/v2c<span class="sev-tag">HIGH</span></div>
-          <div class="remediation">Replace community-string SNMP access with SNMPv3, for example: snmp-server group ADMINGROUP v3 priv
-snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -998,7 +707,7 @@ snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
           <div class="title">Ensure Control Plane Policing is configured<span class="sev-tag">HIGH</span></div>
           <div class="remediation">Define and apply a CoPP policy, for example: control-plane
  service-policy input COPP-POLICY</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1007,7 +716,7 @@ snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
         <div>
           <div class="title">Ensure login rate limiting is configured<span class="sev-tag">MEDIUM</span></div>
           <div class="remediation">Run: login block-for 60 attempts 3 within 30</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1016,16 +725,7 @@ snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
         <div>
           <div class="title">Ensure VTY idle timeout is configured<span class="sev-tag">MEDIUM</span></div>
           <div class="remediation">Under each 'line vty' block, run: exec-timeout 10 0</div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
-      
-      <div class="action-item">
-        <div class="ref">3.1.2</div>
-        <div>
-          <div class="title">Ensure IP source routing is disabled<span class="sev-tag">MEDIUM</span></div>
-          <div class="remediation">Run: no ip source-route</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1034,16 +734,7 @@ snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
         <div>
           <div class="title">Ensure remote syslog host is configured<span class="sev-tag">MEDIUM</span></div>
           <div class="remediation">Run: logging host <your-syslog-server-ip></div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
-      
-      <div class="action-item">
-        <div class="ref">4.1.2</div>
-        <div>
-          <div class="title">Ensure log timestamps are configured<span class="sev-tag">MEDIUM</span></div>
-          <div class="remediation">Run: service timestamps log datetime msec</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1054,7 +745,7 @@ snmp-server user admin ADMINGROUP v3 auth sha <key> priv aes 128 <key></div>
           <div class="remediation">Run: ntp authenticate
 ntp authentication-key 1 md5 <key>
 ntp trusted-key 1</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1063,7 +754,7 @@ ntp trusted-key 1</div>
         <div>
           <div class="title">Ensure a minimum password length is enforced<span class="sev-tag">MEDIUM</span></div>
           <div class="remediation">Run: security passwords min-length 8</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1072,7 +763,7 @@ ntp trusted-key 1</div>
         <div>
           <div class="title">Ensure a login banner is configured<span class="sev-tag">LOW</span></div>
           <div class="remediation">Add a 'banner motd' with an authorized-use-only legal notice.</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1081,17 +772,7 @@ ntp trusted-key 1</div>
         <div>
           <div class="title">Ensure an NTP server is configured<span class="sev-tag">LOW</span></div>
           <div class="remediation">Run: ntp server <ntp-server-ip></div>
-          <div class="hosts">Affected: router-dirty</div>
-        </div>
-      </div>
-      
-      <div class="action-item">
-        <div class="ref">3.1.1</div>
-        <div>
-          <div class="title">Ensure TCP/UDP small servers are disabled<span class="sev-tag">LOW</span></div>
-          <div class="remediation">Run: no service tcp-small-servers
-no service udp-small-servers</div>
-          <div class="hosts">Affected: router-dirty</div>
+          <div class="hosts">Affected: devnet-cat8k</div>
         </div>
       </div>
       
@@ -1100,7 +781,7 @@ no service udp-small-servers</div>
 
   <div class="footer">
     <span>cisco-auditor - CIS Cisco IOS Benchmark</span>
-    <span>2026-06-19 23:07:54</span>
+    <span>2026-06-27 07:56:39</span>
   </div>
 
 </div>
